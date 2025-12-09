@@ -1,0 +1,3445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raven's Nail Gallery</title>
+    
+    <style>
+        /* RESET & BASE STYLES */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #121212; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh; 
+            padding-bottom: 20px;
+            overflow: hidden; 
+            perspective: 1000px; 
+        }
+
+        img {
+            -webkit-user-drag: none;
+            user-drag: none;
+            pointer-events: none; 
+        }
+
+        /* -------------------------
+           GLITTER TEXT EFFECT 
+           ------------------------- */
+        header {
+            padding: 10px 20px; 
+            text-align: center;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 3rem; 
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+
+            background-image: linear-gradient(
+                45deg,
+                #ff00cc 0%,
+                #ff99cc 25%,
+                #ff1493 50%,
+                #ff99cc 75%,
+                #ff00cc 100%
+            );
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            
+            animation: shine 3s linear infinite;
+            filter: drop-shadow(0px 0px 10px rgba(255, 20, 147, 0.5));
+        }
+
+        /* -------------------------
+           ANIMATED EYES
+           ------------------------- */
+        .eyes-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px; 
+            margin-top: 100px; 
+            margin-bottom: 20px; 
+            position: relative;
+            z-index: 5; 
+        }
+
+        .eye-wrapper {
+            position: relative;
+            width: 80px;
+            height: 50px;
+        }
+
+        .eye {
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            border-radius: 70% 15%; 
+            transform: rotate(45deg); 
+            position: absolute;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+        .inner-eye-fix {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-45deg); 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .iris {
+            width: 32px;
+            height: 32px;
+            background: radial-gradient(circle at 30% 30%, #8b5a2b, #6f4e37 40%, #4a3021 100%);
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 0 0 4px rgba(0,0,0,0.5);
+            animation: naturalEyeMove 6s infinite;
+        }
+
+        .pupil-black {
+            width: 14px;
+            height: 14px;
+            background: black;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .iris::after {
+            content: '';
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.9;
+        }
+
+        .eyelid {
+            position: absolute;
+            top: -150%; 
+            left: -50%;
+            width: 200%; 
+            height: 200%;
+            background: #121212; 
+            z-index: 20;
+            animation: blink 4s infinite;
+        }
+
+        @keyframes blink {
+            0%, 48%, 52%, 100% { transform: translateY(0); } 
+            50% { transform: translateY(100%); } 
+        }
+
+        @keyframes naturalEyeMove {
+            0%, 10% { transform: translate(0, 0); }
+            12%, 30% { transform: translate(12px, 0); }
+            32%, 50% { transform: translate(-12px, 0); }
+            52%, 65% { transform: translate(8px, -6px); }
+            67%, 85% { transform: translate(0, 0); }
+            87%, 95% { transform: translate(0, 8px); }
+            100% { transform: translate(0, 0); }
+        }
+
+        .lashes-svg {
+            position: absolute;
+            top: -60px; 
+            left: -35px;
+            width: 150px;
+            height: 120px;
+            z-index: 10;
+            pointer-events: none;
+        }
+        
+        .lashes-svg path {
+            fill: #ff00cc;
+            filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.3));
+        }
+
+        .eye-wrapper.right {
+            transform: scaleX(-1);
+        }
+
+        /* -------------------------
+           3D FLIP CONTAINER
+           ------------------------- */
+        .main-container {
+            width: 90%;
+            max-width: 450px; /* Reduced from 500px */
+            margin-top: 40px; /* Increased from 10px */
+            flex-grow: 1; 
+            position: relative;
+            z-index: 10; 
+            max-height: 50vh; 
+            perspective: 1500px; 
+            touch-action: pan-y;
+            user-select: none;
+        }
+
+        .flipper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+        }
+
+        .flipper.flipped {
+            transform: rotateY(-180deg);
+        }
+
+        /* FLIP TOGGLE BUTTON */
+        .flip-btn {
+            position: absolute;
+            top: -60px; 
+            right: 0;
+            background: rgba(30, 30, 30, 0.8);
+            color: #ffd700;
+            border: 2px solid #ffd700;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .flip-btn:hover {
+            transform: rotate(180deg);
+            background: #ffd700;
+            color: #000;
+        }
+
+        /* MAGIC STAR BUTTON (Above Flip Button) */
+        .magic-btn {
+            position: absolute;
+            top: -110px; /* 50px above flip btn */
+            right: 0;
+            background: rgba(30, 30, 30, 0.8);
+            color: #ff00cc;
+            border: 2px solid #ff00cc;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 0 10px rgba(255, 0, 204, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .magic-btn:hover {
+            transform: scale(1.1);
+            background: #ff00cc;
+            color: white;
+            box-shadow: 0 0 20px #ff00cc;
+        }
+
+        /* NEW PEACH BUTTON (Above Magic Star) */
+        .peach-btn {
+            position: absolute;
+            top: -160px; /* 50px above magic btn */
+            right: 0;
+            background: rgba(30, 30, 30, 0.8);
+            color: #ff9966; /* Peach color */
+            border: 2px solid #ff9966;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 0 10px rgba(255, 153, 102, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .peach-btn:hover {
+            transform: scale(1.1);
+            background: #ff9966;
+            color: white;
+            box-shadow: 0 0 20px #ff9966;
+        }
+
+        /* DOMINO BUTTON (Above Peach) - REDESIGNED & CENTERED */
+        .domino-btn {
+            position: absolute;
+            top: -215px; 
+            right: 8px; /* Centered relative to 40px buttons: (40-24)/2 = 8px */
+            background: white; 
+            color: black;
+            border: 1px solid #ccc;
+            border-radius: 2px; /* Sharper edges */
+            width: 24px;
+            height: 44px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3), inset 0 0 2px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+            gap: 2px;
+        }
+        
+        .domino-btn::before {
+            content: '●';
+            font-size: 10px;
+            line-height: 1;
+        }
+        .domino-btn::after {
+            content: '●';
+            font-size: 10px;
+            line-height: 1;
+            border-top: 1px solid #aaa;
+            width: 100%;
+            text-align: center;
+            padding-top: 2px;
+        }
+
+        .domino-btn:hover {
+            transform: scale(1.1) translateY(-2px);
+            box-shadow: 0 0 15px #fff;
+        }
+
+        /* NEON LOGIN BUTTON */
+        .login-btn {
+            position: absolute;
+            top: -60px;
+            left: 0;
+            color: #ff00cc;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            padding: 8px 15px;
+            border: 2px solid #ff00cc;
+            border-radius: 10px;
+            box-shadow: 0 0 5px #ff00cc, inset 0 0 5px #ff00cc;
+            text-shadow: 0 0 5px #ff00cc;
+            background: rgba(0, 0, 0, 0.6);
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.5s ease;
+            animation: neon-spark-text 6s infinite;
+        }
+
+        /* VIBEZ BUTTON (Above Login) */
+        .vibez-btn {
+            position: absolute;
+            top: -95px; /* Moved down from -120px */
+            left: 0;
+            background: rgba(30, 30, 30, 0.8);
+            color: #00ffff; /* Cyan/Blue to contrast pink/gold */
+            border: 2px solid #00ffff;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.9rem; 
+            letter-spacing: 1px; 
+            padding: 6px 12px; 
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 0 5px #00ffff;
+            transition: all 0.3s ease;
+        }
+
+        .vibez-btn:hover {
+            background: #00ffff;
+            color: #000;
+            box-shadow: 0 0 20px #00ffff;
+        }
+
+        /* TRIVIA BUTTON (Above Vibez) - Moved Up */
+        .trivia-btn {
+            position: absolute;
+            top: -145px; /* Moved UP slightly */
+            left: 0;
+            background: rgba(30, 30, 30, 0.8);
+            color: #ffd700; /* Gold */
+            border: 2px solid #ffd700;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .trivia-btn:hover {
+            transform: scale(1.1) rotate(10deg);
+            background: #ffd700;
+            color: #000;
+            box-shadow: 0 0 20px #ffd700;
+        }
+
+        .login-btn.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0);
+        }
+
+        .login-btn::after {
+            content: '';
+            position: absolute;
+            top: -5px; left: -5px; right: -5px; bottom: -5px;
+            border: 2px solid #fff;
+            border-radius: 12px;
+            opacity: 0;
+            z-index: -1;
+            animation: spark-burst 6s infinite;
+        }
+
+        @keyframes neon-spark-text {
+            0%, 95% {
+                color: #ff00cc;
+                border-color: #ff00cc;
+                box-shadow: 0 0 5px #ff00cc, inset 0 0 5px #ff00cc;
+                text-shadow: 0 0 5px #ff00cc;
+            }
+            96% { opacity: 0.7; }
+            97% {
+                color: #fff;
+                border-color: #fff;
+                box-shadow: 0 0 20px #fff, 0 0 40px #ff00cc, inset 0 0 10px #fff;
+                text-shadow: 0 0 10px #fff, 0 0 20px #ff00cc;
+            }
+            98% {
+                color: #ff00cc;
+                border-color: #ff00cc;
+                box-shadow: 0 0 8px #ff00cc, inset 0 0 8px #ff00cc;
+                text-shadow: 0 0 5px #ff00cc;
+            }
+            99% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes spark-burst {
+            0%, 96% { transform: scale(1); opacity: 0; border-color: transparent; }
+            97% { opacity: 1; border-color: #fff; }
+            100% { transform: scale(1.4); opacity: 0; border-color: #ff00cc; }
+        }
+
+        /* --- 3D FACES --- */
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        /* FACE 1: GALLERY (0deg) */
+        .face-1 {
+            transform: rotateY(0deg) translateZ(var(--prism-depth));
+            z-index: 2;
+        }
+
+        .upload-frame {
+            position: relative;
+            padding: 12px; 
+            height: 100%; 
+            background-image: linear-gradient(
+                135deg,
+                #ffd700 0%,
+                #ffec8b 25%,
+                #b8860b 50%,
+                #ffff00 75%,
+                #ffd700 100%
+            );
+            background-size: 200% auto;
+            animation: shine 2.5s linear infinite reverse;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            display: flex;
+            flex-direction: column;
+            border-radius: 20px;
+        }
+
+        /* FACE 2: STEAMPUNK CLOCK (120deg) */
+        .face-2 {
+            transform: rotateY(120deg) translateZ(var(--prism-depth));
+            background: #1a1510;
+            border-radius: 20px;
+            border: 12px solid #ff1493; /* Metallic Pink */
+            box-shadow: inset 0 0 80px #000, 0 0 20px rgba(255, 20, 147, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* FACE 3: JAMAICA MAP (240deg) */
+        .face-3 {
+            transform: rotateY(240deg) translateZ(var(--prism-depth));
+            /* Metallic Green & Black Gradient Background */
+            background: radial-gradient(circle at center, #006400 0%, #000000 80%);
+            border-radius: 20px;
+            border: 12px solid #ffd700; /* Gold */
+            box-shadow: inset 0 0 50px #000, 0 0 20px rgba(255, 215, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #ffd700;
+            text-align: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* --- CLOCK STYLES --- */
+        .rivet {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: radial-gradient(circle, #ff99cc, #ff1493);
+            border-radius: 50%;
+            box-shadow: 1px 1px 2px black;
+            z-index: 5;
+        }
+        .r-tl { top: 10px; left: 10px; }
+        .r-tr { top: 10px; right: 10px; }
+        .r-bl { bottom: 10px; left: 10px; }
+        .r-br { bottom: 10px; right: 10px; }
+
+        .clock-body {
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            background: radial-gradient(farthest-corner at 40px 40px, #ffb6c1 0%, #ff69b4 50%, #c71585 100%);
+            border: 8px solid #ff69b4; 
+            box-shadow: inset 0 0 20px rgba(255,255,255,0.4), 0 0 15px rgba(0,0,0,0.8);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .crown {
+            position: absolute;
+            top: 20px; 
+            width: 60px;
+            height: 40px;
+            z-index: 15;
+            fill: url(#gold-gradient);
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5));
+        }
+
+        .gear-layer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            overflow: hidden;
+            opacity: 0.6;
+        }
+        
+        .big-gear {
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            width: 150px;
+            height: 150px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff1493'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6z'/%3E%3C/svg%3E");
+            background-size: cover;
+            animation: spin 20s linear infinite;
+        }
+
+        .small-gear {
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            width: 80px;
+            height: 80px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff69b4'%3E%3Cpath d='M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z'/%3E%3C/svg%3E");
+            background-size: cover;
+            animation: spin 10s linear infinite reverse;
+        }
+
+        .clock-marker {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            color: #d4af37;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 1.4rem;
+            padding: 5px;
+            text-shadow: 1px 1px 2px #000;
+        }
+        
+        .m-12 { transform: rotate(0deg); }
+        .m-3 { transform: rotate(90deg); }
+        .m-6 { transform: rotate(180deg); }
+        .m-9 { transform: rotate(270deg); }
+        
+        .m-3 span { display: block; transform: rotate(-90deg); }
+        .m-6 span { display: block; transform: rotate(-180deg); }
+        .m-9 span { display: block; transform: rotate(-270deg); }
+
+        .hand {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform-origin: bottom center;
+            border-radius: 2px;
+            z-index: 10;
+            box-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+        }
+
+        .hour-hand {
+            width: 8px;
+            height: 60px;
+            background: #b87333; 
+            border: 1px solid #000;
+            margin-left: -4px;
+        }
+        .hour-hand::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -4px;
+            border-bottom: 10px solid #b87333;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+        }
+
+        .min-hand {
+            width: 4px;
+            height: 90px;
+            background: #ffd700;
+            border: 1px solid #000;
+            margin-left: -2px;
+        }
+
+        .sec-hand {
+            width: 2px;
+            height: 100px;
+            background: #ff00cc; 
+            margin-left: -1px;
+            z-index: 11;
+        }
+        .sec-hand::before {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: -3px;
+            width: 8px;
+            height: 25px;
+            background: #ff00cc;
+            border-radius: 4px;
+        }
+
+        .center-dot {
+            width: 16px;
+            height: 16px;
+            background: radial-gradient(circle, #ffd700, #b8860b);
+            border: 2px solid #000;
+            border-radius: 50%;
+            position: absolute;
+            z-index: 12;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* --- JAMAICA FACE STYLES --- */
+        .jam-text-title {
+            font-size: 3.5rem;
+            color: #ffd700;
+            font-weight: 900;
+            margin-bottom: 5px;
+            text-shadow: 0 4px 0 #000, 0 0 10px #ffd700;
+            letter-spacing: 3px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .jam-map {
+            position: absolute;
+            width: 80%; /* Adjusted size */
+            height: auto;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.9;
+            fill: url(#gold-gradient);
+            filter: drop-shadow(0 0 10px #ffd700);
+            z-index: 1;
+        }
+
+        .jam-info-container {
+            position: relative;
+            z-index: 2;
+            background: rgba(0,0,0,0.6);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #009b3a;
+            margin-top: 40px;
+        }
+
+        .jam-label {
+            font-size: 0.9rem;
+            color: #009b3a; 
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .jam-value {
+            font-size: 2rem;
+            color: #ffd700; 
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 0 black;
+        }
+
+        /* Existing Grid Styles... */
+        .scrollable-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; 
+            gap: 2px; 
+            background-color: rgba(255, 215, 0, 0.3); 
+            border-radius: 12px;
+            overflow-y: auto; 
+            flex-grow: 1; 
+            scrollbar-width: thin;
+            scrollbar-color: #ff00cc #2a2a2a;
+        }
+
+        .scrollable-grid::-webkit-scrollbar {
+            width: 8px;
+        }
+        .scrollable-grid::-webkit-scrollbar-track {
+            background: #2a2a2a;
+            border-radius: 0 12px 12px 0;
+        }
+        .scrollable-grid::-webkit-scrollbar-thumb {
+            background-color: #ff00cc;
+            border-radius: 20px;
+            border: 2px solid #2a2a2a;
+        }
+
+        .upload-slot {
+            background-color: #1e1e1e;
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s, background 0.2s ease;
+            overflow: hidden;
+            pointer-events: auto; 
+            aspect-ratio: 1 / 1; 
+            min-height: 150px; 
+        }
+
+        .upload-slot:hover {
+            background-color: #2a2a2a;
+        }
+
+        .upload-slot.shake {
+            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            20%, 80% { transform: translate3d(4px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+            40%, 60% { transform: translate3d(6px, 0, 0); }
+        }
+
+        .slot-text {
+            color: #555;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: center;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+        
+        .slot-text span {
+            display: block;
+            font-size: 2rem;
+            color: #ffd700;
+            margin-bottom: 5px;
+        }
+
+        .preview-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: none; 
+            pointer-events: none; 
+        }
+
+        .upload-slot img {
+            pointer-events: auto; 
+        }
+
+        footer {
+            margin-top: auto;
+            padding-top: 10px;
+            padding-bottom: 20px;
+            font-size: 1rem;
+            color: #ff99cc;
+            font-weight: 600;
+            text-shadow: 0 0 8px rgba(255, 20, 147, 0.6);
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 10;
+        }
+
+        @keyframes shine {
+            to {
+                background-position: 200% center;
+            }
+        }
+
+        .butterfly-sky {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1; 
+            overflow: hidden;
+        }
+
+        .bf-transit {
+            position: absolute;
+            left: -150px;
+            top: 0;
+            animation: transit linear forwards;
+            pointer-events: none;
+        }
+
+        .bf-vertical {
+            animation: bobbing ease-in-out infinite alternate;
+            pointer-events: none;
+        }
+
+        .bf-visual {
+            font-size: 80px; 
+            line-height: 1;
+            filter: hue-rotate(90deg) saturate(1.5) drop-shadow(0 0 5px rgba(255, 105, 180, 0.6));
+            opacity: 0.95;
+            transform-origin: center center;
+            animation: flutter infinite alternate ease-in-out;
+            cursor: default;
+            user-select: none;
+            will-change: transform;
+            pointer-events: none;
+        }
+
+        .bf-visual.gold {
+            filter: hue-rotate(210deg) saturate(2) brightness(1.2) drop-shadow(0 0 5px rgba(255, 215, 0, 0.8));
+        }
+
+        @keyframes transit {
+            from { transform: translateX(0); }
+            to { transform: translateX(120vw); }
+        }
+
+        @keyframes bobbing {
+            from { transform: translateY(-30px); }
+            to { transform: translateY(30px); }
+        }
+
+        @keyframes flutter {
+            0% { transform: scaleX(1) translateY(-5px) rotateZ(15deg); }
+            100% { transform: scaleX(0.3) translateY(5px) rotateZ(-5deg); }
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none; 
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto; 
+        }
+
+        #image-viewer-modal { z-index: 10000; }
+        #delete-confirm-modal { z-index: 10001; }
+        #password-modal { z-index: 10002; }
+        #login-modal { z-index: 10003; }
+        #vibez-modal { z-index: 10004; }
+        #news-modal { z-index: 10005; }
+        #trivia-modal { z-index: 10006; }
+        #domino-modal { z-index: 10007; }
+        #virgo-modal { z-index: 10008; }
+
+        .modal-box {
+            background: #1e1e1e;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            border: 2px solid #ffd700;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
+            width: 85%;
+            max-width: 320px;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .modal-overlay.active .modal-box {
+            transform: scale(1);
+        }
+
+        /* QUEEN'S ACCESS LOGIN SPECIFIC STYLES */
+        .login-box-style {
+            border: 2px solid #ff00cc;
+            box-shadow: 0 0 20px #ff00cc, inset 0 0 20px rgba(255, 0, 204, 0.2);
+            position: relative;
+            overflow: visible;
+        }
+
+        /* BOOMBOX STYLES */
+        .boombox-body {
+            width: 100%;
+            height: auto; 
+            padding-bottom: 20px; 
+            background: linear-gradient(135deg, #ff69b4, #ff1493, #c71585, #ff69b4);
+            background-size: 200% 200%;
+            animation: metal-shine 5s ease infinite;
+            border-radius: 20px;
+            border: 4px solid #ffd700; /* Gold Border */
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 0 20px rgba(255,255,255,0.3);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px; 
+            overflow: visible; /* Changed to visible so notes can float out */
+        }
+
+        /* Music Note Animation */
+        .music-note {
+            position: absolute;
+            font-size: 24px;
+            pointer-events: none;
+            z-index: 20;
+            animation: float-note 2s linear forwards;
+            opacity: 0;
+        }
+
+        @keyframes float-note {
+            0% {
+                transform: translateY(0) rotate(0deg) scale(0.5);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(45deg) scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        .boombox-handle {
+            position: absolute;
+            top: -30px; /* Adjusted top position */
+            width: 60%;
+            height: 30px;
+            border: 5px solid #d4af37;
+            border-bottom: none;
+            border-radius: 20px 20px 0 0;
+            background: transparent;
+            z-index: -1;
+        }
+
+        /* New Decorative Screws */
+        .bb-screw {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: radial-gradient(circle, #ffd700, #b8860b);
+            border-radius: 50%;
+            border: 1px solid #8b6914;
+            box-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+        }
+        .bbs-tl { top: 8px; left: 8px; }
+        .bbs-tr { top: 8px; right: 8px; }
+        .bbs-bl { bottom: 8px; left: 8px; }
+        .bbs-br { bottom: 8px; right: 8px; }
+
+        /* NEW LCD SCREEN (Digital Display) */
+        .lcd-screen {
+            width: 90%;
+            height: 40px;
+            background: #002200;
+            border: 2px solid #555;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 10px #000;
+            display: flex;
+            align-items: center;
+        }
+
+        .lcd-text {
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 1.2rem;
+            white-space: nowrap;
+            position: absolute;
+            left: 100%;
+            text-shadow: 0 0 5px #00ff00;
+            /* Will be animated via JS class */
+        }
+
+        .lcd-text.scrolling {
+            animation: marquee 10s linear infinite;
+        }
+
+        @keyframes marquee {
+            0% { left: 100%; }
+            100% { left: -100%; }
+        }
+
+        /* New Tuner Display (Visual Only now, below LCD) */
+        .tuner-display {
+            width: 90%;
+            height: 15px;
+            background: #222;
+            border: 1px solid #555;
+            border-radius: 3px;
+            margin-bottom: 10px;
+            position: relative;
+            overflow: hidden;
+            display: none; /* Hid this to make room for LCD, as LCD is better */
+        }
+        
+        .speakers-row {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            padding: 0 10px;
+            align-items: center;
+            margin-bottom: 15px; 
+        }
+
+        .speaker {
+            width: 80px; 
+            height: 80px; 
+            background: radial-gradient(circle, #333 10%, #000 90%);
+            border: 3px solid #ffd700;
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        .speaker::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 25px; 
+            height: 25px; 
+            background: #222;
+            border-radius: 50%;
+            border: 1px solid #555;
+        }
+
+        .tape-deck-display {
+            flex-grow: 1;
+            height: 50px;
+            margin: 0 15px; 
+            background: #111;
+            border: 2px solid #555;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* ... (equalizer bars stay the same) ... */
+
+        .boombox-controls {
+            display: flex;
+            justify-content: center; /* Centered since we removed the right button */
+            width: 100%;
+            padding: 0 15px;
+            margin-bottom: 20px; 
+        }
+
+        /* New Channel Section */
+        .channel-section {
+            width: 100%;
+            padding: 0 15px;
+        }
+        
+        .channel-title {
+            font-family: 'Courier New', monospace;
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            text-transform: uppercase;
+        }
+
+        .channel-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* Changed from 5 to 4 */
+            gap: 8px;
+            justify-items: center;
+        }
+
+        .channel-btn {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(to bottom, #ffd700, #b8860b);
+            border: 2px solid #8b6914;
+            color: #4a3c1b;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            border-radius: 8px;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.5);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.1s;
+        }
+        .channel-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.4), inset 0 2px 5px rgba(0,0,0,0.4);
+        }
+
+        .equalizer-bar {
+            width: 6px;
+            background: linear-gradient(to top, #0f0, #ff0, #f00);
+            margin: 0 2px;
+            border-radius: 2px;
+            animation: eq-bounce 0.5s infinite alternate;
+        }
+        .eq-1 { height: 40%; animation-delay: 0s; }
+        .eq-2 { height: 70%; animation-delay: 0.1s; }
+        .eq-3 { height: 50%; animation-delay: 0.2s; }
+        .eq-4 { height: 80%; animation-delay: 0.3s; }
+        .eq-5 { height: 30%; animation-delay: 0.4s; }
+
+        @keyframes eq-bounce {
+            to { height: 90%; }
+        }
+
+        @keyframes metal-shine {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .gold-btn {
+            background: linear-gradient(to bottom, #ffd700, #b8860b);
+            border: 1px solid #8b6914;
+            color: #4a3c1b;
+            font-weight: bold;
+            font-size: 0.8rem;
+            padding: 8px 12px;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.5);
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+        .gold-btn:active {
+            transform: translateY(2px);
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.4);
+        }
+
+        .scanner-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Neon Title */
+        .neon-title-large {
+            font-size: 2.2rem;
+            color: #ff00cc;
+            text-shadow: 
+                0 0 5px #fff,
+                0 0 10px #ff00cc,
+                0 0 20px #ff00cc,
+                0 0 30px #ff00cc;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            margin-top: 35px; 
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Realistic Wavy Paint Drip Container */
+        .drip-container {
+            position: absolute;
+            top: -2px; 
+            left: 0;
+            width: 100%;
+            height: 80px; 
+            pointer-events: none;
+            z-index: 10;
+            display: flex;
+            filter: drop-shadow(0 0 5px #ff00cc); /* Neon Glow on drips */
+        }
+
+        /* Irregular Blobby Drips */
+        .drip {
+            background: #ff00cc;
+            position: absolute;
+            top: 0;
+            border-radius: 0 0 50px 50px;
+            /* Animation to make them look fluid/wobbly */
+            animation: flow 3s ease-in-out infinite alternate;
+        }
+
+        /* Individual drip variation for realistic mess */
+        .d1 { left: 5%; width: 20px; height: 40px; animation-delay: 0s; border-radius: 0 0 60% 40%; }
+        .d2 { left: 20%; width: 30px; height: 65px; animation-delay: 0.5s; border-radius: 0 0 45% 55%; }
+        .d3 { left: 40%; width: 25px; height: 35px; animation-delay: 1.2s; border-radius: 0 0 50% 50%; }
+        .d4 { left: 55%; width: 35px; height: 75px; animation-delay: 0.2s; border-radius: 0 0 55% 45%; }
+        .d5 { left: 75%; width: 22px; height: 45px; animation-delay: 0.8s; border-radius: 0 0 40% 60%; }
+        .d6 { left: 90%; width: 15px; height: 30px; animation-delay: 1.5s; border-radius: 0 0 50% 50%; }
+        
+        /* The "Pool" at the top connecting them */
+        .drip-pool {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 15px;
+            background: #ff00cc;
+            border-radius: 10px 10px 0 0; /* Smooth top corners */
+        }
+
+        @keyframes flow {
+            0% { transform: scaleY(1) skewX(0deg); }
+            50% { transform: scaleY(1.1) skewX(2deg); }
+            100% { transform: scaleY(1) skewX(-2deg); }
+        }
+
+        .image-viewer-box {
+            position: relative;
+            width: 90%;
+            height: 80%;
+            max-width: 800px;
+            padding: 12px;
+            border-radius: 20px;
+            background-image: linear-gradient(
+                135deg,
+                #ffd700 0%,
+                #ffec8b 25%,
+                #b8860b 50%,
+                #ffff00 75%,
+                #ffd700 100%
+            );
+            background-size: 200% auto;
+            animation: shine 2.5s linear infinite reverse;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-overlay.active .image-viewer-box {
+            transform: scale(1);
+        }
+
+        .viewer-content {
+            background: #000;
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .viewer-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .close-viewer-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0,0,0,0.5);
+            color: #ffd700;
+            border: 2px solid #ffd700;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            z-index: 20;
+        }
+        
+        .close-viewer-btn:hover {
+            background: #ffd700;
+            color: #000;
+        }
+
+        .trash-btn {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.6);
+            border: 2px solid #ff00cc;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            transition: all 0.2s;
+        }
+
+        .trash-btn:hover {
+            background: #ff00cc;
+            transform: translateX(-50%) scale(1.1);
+            box-shadow: 0 0 15px #ff00cc;
+        }
+
+        .modal-title {
+            color: #ffd700;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .delete-text {
+            color: white;
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 25px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            color: white;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            text-align: center;
+            outline: none;
+        }
+        
+        .modal-input:focus {
+            border-color: #ff00cc;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+        
+        .modal-btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-cancel {
+            background: #444;
+            color: #ccc;
+        }
+
+        .btn-unlock {
+            background: linear-gradient(45deg, #ff00cc, #ff69b4);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 0, 204, 0.4);
+        }
+
+        .btn-delete {
+            background: linear-gradient(45deg, #ff0000, #ff4444);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.4);
+        }
+
+        #glitter-trail {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 20000; 
+        }
+
+        /* News Modal Styles */
+        .news-content {
+            text-align: left;
+            padding: 10px;
+            color: #ddd;
+            font-family: 'Segoe UI', sans-serif;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .news-item {
+            margin-bottom: 15px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+        }
+
+        .news-headline {
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+        
+        .news-snippet {
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        #news-date {
+            color: #ff99cc;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        /* TRIVIA STYLES */
+        #trivia-question-text {
+            color: #ffd700;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px #000;
+        }
+
+        .trivia-options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .trivia-option-btn {
+            background: #333;
+            color: #fff;
+            padding: 12px;
+            border: 2px solid #555;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            text-align: left;
+            transition: all 0.2s;
+        }
+
+        .trivia-option-btn:hover {
+            background: #444;
+            border-color: #ffd700;
+        }
+
+        .trivia-option-btn.correct {
+            background: #006400;
+            border-color: #00ff00;
+        }
+
+        .trivia-option-btn.wrong {
+            background: #8b0000;
+            border-color: #ff0000;
+        }
+
+        #trivia-score {
+            margin-top: 15px;
+            color: #ff00cc;
+            font-weight: bold;
+        }
+
+        #trivia-next-btn {
+            margin-top: 15px;
+            background: linear-gradient(45deg, #ffd700, #b8860b);
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            display: none; /* Hidden until answer selected */
+        }
+
+        /* DOMINO GAME STYLES */
+        .domino-modal-box {
+            width: 95%;
+            max-width: 600px;
+            background: #ff69b4; /* Pink base */
+            border: 4px solid #ffd700; /* Thin gold line */
+            padding: 40px 20px 20px 20px; /* Top padding for rose clearance */
+            color: #ffd700;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            position: relative;
+            overflow: visible; /* Allow flowers to poke out */
+        }
+
+        /* REALISTIC ROSE BORDER CONTAINER */
+        .rose-border-container {
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            right: -15px;
+            bottom: -15px;
+            pointer-events: none;
+            z-index: 50;
+            border: 0;
+            display: block;
+        }
+
+        .rose-svg-icon {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.5));
+        }
+
+        /* Positions for individual roses to form a frame */
+        /* Top Row */
+        .r-t-1 { top: 0; left: 0; }
+        .r-t-2 { top: 0; left: 20%; }
+        .r-t-3 { top: 0; left: 40%; }
+        .r-t-4 { top: 0; left: 60%; }
+        .r-t-5 { top: 0; left: 80%; }
+        .r-t-6 { top: 0; right: 0; }
+        
+        /* Bottom Row */
+        .r-b-1 { bottom: 0; left: 0; }
+        .r-b-2 { bottom: 0; left: 20%; }
+        .r-b-3 { bottom: 0; left: 40%; }
+        .r-b-4 { bottom: 0; left: 60%; }
+        .r-b-5 { bottom: 0; left: 80%; }
+        .r-b-6 { bottom: 0; right: 0; }
+
+        /* Left Column */
+        .r-l-1 { top: 20%; left: 0; }
+        .r-l-2 { top: 40%; left: 0; }
+        .r-l-3 { top: 60%; left: 0; }
+        .r-l-4 { top: 80%; left: 0; }
+
+        /* Right Column */
+        .r-r-1 { top: 20%; right: 0; }
+        .r-r-2 { top: 40%; right: 0; }
+        .r-r-3 { top: 60%; right: 0; }
+        .r-r-4 { top: 80%; right: 0; }
+
+
+        .domino-controls {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 60;
+        }
+
+        .domino-diff-btn {
+            background: #b8860b;
+            color: white;
+            border: 2px solid #ffd700;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 5px;
+        }
+        .domino-diff-btn.selected {
+            background: #ffd700;
+            color: black;
+            box-shadow: 0 0 10px #ffd700;
+        }
+
+        .domino-board {
+            background: #2a001a;
+            border: 2px solid #ffd700;
+            height: 200px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: auto;
+            padding: 10px;
+            gap: 2px;
+            position: relative;
+            z-index: 60;
+        }
+
+        .hand-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 5px;
+            min-height: 60px;
+            position: relative;
+            z-index: 60;
+        }
+
+        .domino-tile {
+            width: 30px;
+            height: 60px;
+            background: #fff8dc; /* Cream */
+            border: 2px solid #ff1493; /* Pink border */
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            cursor: pointer;
+            box-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+            transition: transform 0.1s;
+        }
+        
+        .domino-tile:hover {
+            transform: translateY(-5px);
+        }
+
+        .domino-tile.horizontal {
+            width: 60px;
+            height: 30px;
+            flex-direction: row;
+        }
+
+        .domino-half {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        
+        /* Divider line */
+        .domino-tile:not(.horizontal) .domino-half:first-child {
+            border-bottom: 1px solid #ff1493;
+        }
+        .domino-tile.horizontal .domino-half:first-child {
+            border-right: 1px solid #ff1493;
+        }
+
+        .dot {
+            width: 4px;
+            height: 4px;
+            background: #000; /* BLACK DOTS as requested */
+            border-radius: 50%;
+            position: absolute;
+            box-shadow: none;
+        }
+
+        
+        .ai-hand .domino-tile {
+            background: #ff1493; /* Back of tile */
+            cursor: default;
+        }
+        .ai-hand .domino-tile:hover {
+            transform: none;
+        }
+
+        .game-status {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px black;
+            position: relative;
+            z-index: 60;
+        }
+
+        /* UTILITY CLASS TO HIDE BUTTONS UNTIL LOGIN */
+        .auth-locked {
+            display: none !important;
+        }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 2.2rem; }
+            .eyes-container { 
+                gap: 20px; 
+                margin-top: 60px;
+                margin-bottom: 20px; 
+            }
+            .main-container {
+                width: 95%;
+            }
+            .image-viewer-box {
+                width: 95%;
+                height: 70%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Hidden SVG for Gradients & Roses -->
+    <svg width="0" height="0">
+        <defs>
+            <linearGradient id="gold-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#ffd700;stop-opacity:1" />
+                <stop offset="50%" style="stop-color:#b8860b;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#ffd700;stop-opacity:1" />
+            </linearGradient>
+
+            <!-- Realistic Rose Symbol -->
+            <symbol id="icon-rose" viewBox="0 0 100 100">
+                <!-- Petals -->
+                <path d="M50 50 C30 20 10 40 30 60 C40 70 50 60 50 50" fill="#ff69b4" stroke="#c71585" stroke-width="2"/>
+                <path d="M50 50 C70 20 90 40 70 60 C60 70 50 60 50 50" fill="#ff1493" stroke="#c71585" stroke-width="2"/>
+                <path d="M50 50 C30 80 40 90 50 80 C60 90 70 80 50 50" fill="#db7093" stroke="#c71585" stroke-width="2"/>
+                <circle cx="50" cy="50" r="15" fill="#ffd700" stroke="#b8860b" stroke-width="2"/>
+            </symbol>
+            
+            <!-- Yellow Rose Symbol -->
+            <symbol id="icon-rose-yellow" viewBox="0 0 100 100">
+                <path d="M50 50 C30 20 10 40 30 60 C40 70 50 60 50 50" fill="#ffff00" stroke="#daa520" stroke-width="2"/>
+                <path d="M50 50 C70 20 90 40 70 60 C60 70 50 60 50 50" fill="#ffd700" stroke="#daa520" stroke-width="2"/>
+                <path d="M50 50 C30 80 40 90 50 80 C60 90 70 80 50 50" fill="#ffffe0" stroke="#daa520" stroke-width="2"/>
+                <circle cx="50" cy="50" r="15" fill="#ff69b4" stroke="#c71585" stroke-width="2"/>
+            </symbol>
+        </defs>
+    </svg>
+
+    <header>
+        <h1>Raven's Nail Gallery</h1>
+        
+        <!-- Animated Eyes -->
+        <div class="eyes-container">
+            <div class="eye-wrapper left">
+                <div class="eye">
+                    <div class="inner-eye-fix">
+                        <div class="iris"><div class="pupil-black"></div></div>
+                        <div class="eyelid"></div>
+                    </div>
+                </div>
+                <svg class="lashes-svg" viewBox="0 0 200 150">
+                    <path d="M 40 100 Q 90 60 150 90 L 140 85 Q 90 50 35 90 Z" />
+                    <path d="M 50 85 Q 40 40 20 20 L 25 20 Q 48 45 55 82 Z" />
+                    <path d="M 70 78 Q 65 30 45 5 L 50 5 Q 75 35 76 75 Z" />
+                    <path d="M 90 75 Q 90 25 80 0 L 86 0 Q 100 30 98 75 Z" />
+                    <path d="M 110 78 Q 120 30 130 5 L 124 8 Q 115 35 115 79 Z" />
+                    <path d="M 130 85 Q 150 45 170 30 L 165 35 Q 145 50 135 88 Z" />
+                </svg>
+            </div>
+            <div class="eye-wrapper right">
+                <div class="eye">
+                    <div class="inner-eye-fix">
+                        <div class="iris"><div class="pupil-black"></div></div>
+                        <div class="eyelid"></div>
+                    </div>
+                </div>
+                <svg class="lashes-svg" viewBox="0 0 200 150">
+                    <path d="M 40 100 Q 90 60 150 90 L 140 85 Q 90 50 35 90 Z" />
+                    <path d="M 50 85 Q 40 40 20 20 L 25 20 Q 48 45 55 82 Z" />
+                    <path d="M 70 78 Q 65 30 45 5 L 50 5 Q 75 35 76 75 Z" />
+                    <path d="M 90 75 Q 90 25 80 0 L 86 0 Q 100 30 98 75 Z" />
+                    <path d="M 110 78 Q 120 30 130 5 L 124 8 Q 115 35 115 79 Z" />
+                    <path d="M 130 85 Q 150 45 170 30 L 165 35 Q 145 50 135 88 Z" />
+                </svg>
+            </div>
+        </div>
+    </header>
+
+    <!-- HIDDEN INPUTS CONTAINER -->
+    <div id="inputs-container" style="display: none;"></div>
+
+    <!-- MAIN CONTAINER (SCENE) -->
+    <div class="main-container">
+        
+        <!-- NEW DOMINO BUTTON (Above Peach) -->
+        <div class="domino-btn auth-locked" onclick="openDominoModal()"></div>
+
+        <!-- NEW TRIVIA BUTTON (Above Vibez) -->
+        <div class="trivia-btn auth-locked" onclick="openTriviaModal()">📜</div>
+
+        <!-- NEW VIBEZ BUTTON (Added Above Login) -->
+        <div class="vibez-btn auth-locked" onclick="openVibezModal()">Vibez</div>
+
+        <!-- LOG IN BUTTON (Visible Initially) -->
+        <div id="main-login-btn" class="login-btn" onclick="openLoginModal()">Log in</div>
+
+        <!-- NEW PEACH BUTTON (Above Magic Star) -->
+        <div class="peach-btn auth-locked" onclick="openNewsModal()">🍑</div>
+
+        <!-- NEW MAGIC BUTTON (Added Above Flip) -->
+        <div class="magic-btn auth-locked" onclick="explodeGlitter()">★</div>
+
+        <!-- FLIP TOGGLE BUTTON (FAILSAFE) -->
+        <div class="flip-btn auth-locked" onclick="toggleFlip()">↻</div>
+
+        <!-- FLIPPER WRAPPER -->
+        <div class="flipper" id="gallery-flipper">
+            
+            <!-- FRONT: GALLERY -->
+            <div class="card-face face-1">
+                <div class="upload-frame">
+                    <div id="gallery-grid" class="scrollable-grid"></div>
+                </div>
+            </div>
+
+            <!-- SIDE 2: CLOCK -->
+            <div class="card-face face-2">
+                <!-- Rivets -->
+                <div class="rivet r-tl"></div>
+                <div class="rivet r-tr"></div>
+                <div class="rivet r-bl"></div>
+                <div class="rivet r-br"></div>
+
+                <div class="clock-body">
+                    <div class="gear-layer">
+                        <div class="big-gear"></div>
+                        <div class="small-gear"></div>
+                    </div>
+                    
+                    <!-- GOLD QUEEN'S CROWN -->
+                    <svg class="crown" viewBox="0 0 100 50">
+                        <path d="M5,45 Q50,55 95,45 L85,15 L70,30 L50,5 L30,30 L15,15 Z" />
+                        <circle cx="5" cy="45" r="3" />
+                        <circle cx="95" cy="45" r="3" />
+                        <circle cx="85" cy="15" r="3" />
+                        <circle cx="50" cy="5" r="4" />
+                        <circle cx="15" cy="15" r="3" />
+                    </svg>
+
+                    <div class="clock-marker m-12"><span>XII</span></div>
+                    <div class="clock-marker m-3"><span>III</span></div>
+                    <div class="clock-marker m-6"><span>VI</span></div>
+                    <div class="clock-marker m-9"><span>IX</span></div>
+
+                    <div class="hand hour-hand" id="hour-hand"></div>
+                    <div class="hand min-hand" id="min-hand"></div>
+                    <div class="hand sec-hand" id="sec-hand"></div>
+                    <div class="center-dot"></div>
+                </div>
+            </div>
+
+            <!-- SIDE 3: JAMAICA -->
+            <div class="card-face face-3">
+                
+                <!-- GOLD METALLIC MAP OF JAMAICA (Updated to Accurate Shape) -->
+                <svg class="jam-map" viewBox="0 0 800 300" preserveAspectRatio="xMidYMid meet">
+                    <!-- Accurate Path for Jamaica Outline -->
+                    <path d="M48,158 C53,150 78,144 95,148 C115,152 145,150 170,145 C190,140 215,135 240,138 C265,141 290,145 315,142 C330,140 345,135 360,132 C385,128 415,125 440,128 C465,131 490,135 515,130 C535,126 555,120 575,118 C600,115 625,112 650,115 C675,118 700,125 720,135 C735,142 750,150 760,165 C765,175 755,185 740,188 C715,193 690,195 665,190 C640,185 615,180 590,178 C565,176 540,178 515,185 C490,192 465,200 440,205 C415,210 390,212 365,208 C340,204 315,198 290,195 C265,192 240,190 215,195 C190,200 165,208 140,210 C115,212 90,208 65,200 C50,195 35,185 25,170 C20,160 30,150 48,158 Z" />
+                </svg>
+
+                <div class="jam-text-title">JAMAICA</div>
+                
+                <div class="jam-info-container">
+                    <div class="jam-label">Temperature</div>
+                    <div id="jam-temp" class="jam-value">Loading...</div>
+                    
+                    <div class="jam-label">Current Time</div>
+                    <div id="jam-time" class="jam-value">00:00:00</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <footer>
+        Made with love 💕
+    </footer>
+    
+    <!-- Container for Butterflies -->
+    <div id="butterfly-sky" class="butterfly-sky"></div>
+
+    <!-- AUDIO PLAYER -->
+    <audio id="boombox-audio" preload="none"></audio>
+
+    <!-- Password Modal (DELETE ONLY) -->
+    <div id="password-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div id="password-modal-title" class="modal-title">Enter Password</div>
+            <input type="number" id="modal-pass" class="modal-input" placeholder="****">
+            <div class="modal-buttons">
+                <button class="modal-btn btn-cancel" onclick="closeModal('password-modal')">Cancel</button>
+                <button id="password-submit-btn" class="modal-btn btn-unlock" onclick="submitPassword()">Unlock</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIBEZ (BOOMBOX) MODAL -->
+    <div id="vibez-modal" class="modal-overlay">
+        <div class="modal-box boombox-modal">
+            <div class="boombox-body">
+                <div class="boombox-handle"></div>
+                <!-- New Screws -->
+                <div class="bb-screw bbs-tl"></div>
+                <div class="bb-screw bbs-tr"></div>
+                <div class="bb-screw bbs-bl"></div>
+                <div class="bb-screw bbs-br"></div>
+
+                <!-- DIGITAL LCD SCREEN -->
+                <div class="lcd-screen">
+                    <div class="lcd-text" id="lcd-text">READY FOR JAMZ...</div>
+                </div>
+
+                <div class="speakers-row">
+                    <div class="speaker left"></div>
+                    <div class="tape-deck-display">
+                        <div class="equalizer-bar eq-1"></div>
+                        <div class="equalizer-bar eq-2"></div>
+                        <div class="equalizer-bar eq-3"></div>
+                        <div class="equalizer-bar eq-4"></div>
+                        <div class="equalizer-bar eq-5"></div>
+                    </div>
+                    <div class="speaker right"></div>
+                </div>
+                <div class="boombox-controls">
+                    <!-- Left: ON/OFF (Centered now) -->
+                    <button id="pwr-btn" class="gold-btn" onclick="toggleRadioPower()">PWR: OFF</button>
+                    <!-- Right button removed as requested -->
+                </div>
+
+                <!-- New 4-Channel Reggae Section -->
+                <div class="channel-section">
+                    <div class="channel-title">Ravens Jamz</div>
+                    <div class="channel-grid">
+                        <button class="channel-btn" onclick="playChannel(1)">1</button>
+                        <button class="channel-btn" onclick="playChannel(2)">2</button>
+                        <button class="channel-btn" onclick="playChannel(3)">3</button>
+                        <button class="channel-btn" onclick="playChannel(4)">4</button>
+                    </div>
+                </div>
+            </div>
+            <button class="modal-btn btn-cancel" onclick="closeModal('vibez-modal')">Close</button>
+        </div>
+    </div>
+
+    <!-- NEWS MODAL -->
+    <div id="news-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-title" style="color: #ff9966;">Augusta GA News</div>
+            <div id="news-date"></div>
+            <div id="news-content" class="news-content">
+                Loading headlines...
+            </div>
+            <button class="modal-btn btn-cancel" style="margin-top: 15px;" onclick="closeModal('news-modal')">Close</button>
+        </div>
+    </div>
+
+    <!-- TRIVIA MODAL -->
+    <div id="trivia-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-title" style="color: #ffd700;">R&B Legends Trivia</div>
+            <div id="trivia-loading" style="display: none;">Loading Questions...</div>
+            <div id="trivia-game-container">
+                <div id="trivia-question-text"></div>
+                <div class="trivia-options" id="trivia-options"></div>
+                <div id="trivia-score">Score: 0 / 10</div>
+                <button id="trivia-next-btn" onclick="nextQuestion()">Next Question</button>
+            </div>
+            <button class="modal-btn btn-cancel" style="margin-top: 15px;" onclick="closeModal('trivia-modal')">Close</button>
+        </div>
+    </div>
+
+    <!-- DOMINO MODAL -->
+    <div id="domino-modal" class="modal-overlay">
+        <div class="modal-box domino-modal-box">
+            <!-- Realistic Rose Border -->
+            <div class="rose-border-container">
+                <!-- Top Row -->
+                <svg class="rose-svg-icon r-t-1"><use href="#icon-rose"/></svg>
+                <svg class="rose-svg-icon r-t-2"><use href="#icon-rose-yellow"/></svg>
+                <svg class="rose-svg-icon r-t-3"><use href="#icon-rose"/></svg>
+                <svg class="rose-svg-icon r-t-4"><use href="#icon-rose-yellow"/></svg>
+                <svg class="rose-svg-icon r-t-5"><use href="#icon-rose"/></svg>
+                <svg class="rose-svg-icon r-t-6"><use href="#icon-rose-yellow"/></svg>
+                
+                <!-- Bottom Row -->
+                <svg class="rose-svg-icon r-b-1"><use href="#icon-rose-yellow"/></svg>
+                <svg class="rose-svg-icon r-b-2"><use href="#icon-rose"/></svg>
+                <svg class="rose-svg-icon r-b-3"><use href="#icon-rose-yellow"/></svg>
+                <svg class="rose-svg-icon r-b-4"><use href="#icon-rose"/></svg>
+                <svg class="rose-svg-icon r-b-5"><use href="#icon-rose-yellow"/></svg>
+                <svg class="rose-svg-icon r-b-6"><use href="#icon-rose"/></svg>
+
+                <!-- Left Column -->
+                <svg class="rose-svg-icon r-l-1"><use href="#icon-rose"/></svg>
+                <svg class="rose-svg-icon r-l-2"><use href="#icon-rose-yellow"/></svg>
+                <svg class="rose-svg-icon r-l-3"><use href="#icon-rose"/></svg>
+                <svg class="rose-svg-icon r-l-4"><use href="#icon-rose-yellow"/></svg>
+
+                <!-- Right Column -->
+                <svg class="rose-svg-icon r-r-1"><use href="#icon-rose-yellow"/></svg>
+                <svg class="rose-svg-icon r-r-2"><use href="#icon-rose"/></svg>
+                <svg class="rose-svg-icon r-r-3"><use href="#icon-rose-yellow"/></svg>
+                <svg class="rose-svg-icon r-r-4"><use href="#icon-rose"/></svg>
+            </div>
+
+            <div class="modal-title" style="font-family: 'Times New Roman', serif; text-transform: uppercase; margin-top: 10px; z-index: 60; position:relative;">Royal Dominoes</div>
+            
+            <div class="domino-controls">
+                <div id="diff-easy" class="domino-diff-btn selected" onclick="setDominoDifficulty('easy')">Squire (Easy)</div>
+                <div id="diff-med" class="domino-diff-btn" onclick="setDominoDifficulty('medium')">Knight (Med)</div>
+                <div id="diff-hard" class="domino-diff-btn" onclick="setDominoDifficulty('hard')">Monarch (Hard)</div>
+            </div>
+
+            <!-- AI Hand (Hidden) -->
+            <div style="text-align: left; font-size: 0.8rem; color: gold; position:relative; z-index: 60;">Opponent's Hand:</div>
+            <div id="ai-hand" class="hand-container ai-hand"></div>
+
+            <!-- Board -->
+            <div id="domino-board" class="domino-board"></div>
+
+            <!-- Player Hand -->
+            <div style="text-align: left; font-size: 0.8rem; color: gold; position:relative; z-index: 60;">Your Hand:</div>
+            <div id="player-hand" class="hand-container"></div>
+
+            <div id="domino-status" class="game-status">Select Difficulty & Start</div>
+
+            <div style="display: flex; gap: 10px; justify-content: center; position:relative; z-index: 60;">
+                <button class="modal-btn btn-unlock" onclick="startDominoGame()">New Game</button>
+                <button class="modal-btn btn-cancel" onclick="closeModal('domino-modal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIRGO MODAL -->
+    <div id="virgo-modal" class="modal-overlay">
+        <div class="modal-box" style="border-color: #9d5783;"> <!-- Virgo purple/earthy tone -->
+            <div class="modal-title" style="color: #ff00cc;">♍ Virgo Daily ♍</div>
+            <div id="virgo-date" style="color: #ffd700; margin-bottom: 10px; font-size: 0.9rem;"></div>
+            <div id="virgo-content" class="news-content" style="text-align: center; font-style: italic; font-size: 1.1rem;">
+                Loading...
+            </div>
+            <!-- Updated onclick to trigger the huge explosion -->
+            <button class="modal-btn btn-unlock" style="margin-top: 15px;" onclick="claimVirgoEnergy()">Claim Energy</button>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal-overlay">
+        <div class="modal-box login-box-style">
+            <!-- Paint Drips (New Realistic Logic) -->
+            <div class="drip-pool"></div>
+            <div class="drip-container">
+                <div class="drip d1"></div>
+                <div class="drip d2"></div>
+                <div class="drip d3"></div>
+                <div class="drip d4"></div>
+                <div class="drip d5"></div>
+                <div class="drip d6"></div>
+            </div>
+            
+            <div class="neon-title-large">Queen's access</div>
+            
+            <div class="login-input-container">
+                <input type="number" id="login-pass" class="modal-input" placeholder="Password">
+                <div class="modal-buttons">
+                    <button class="modal-btn btn-cancel" onclick="closeModal('login-modal')">Cancel</button>
+                    <button class="modal-btn btn-unlock" onclick="submitLogin()">Enter</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-confirm-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-title">Wait!</div>
+            <p class="delete-text">You sure you wanna delete that honey?</p>
+            <div class="modal-buttons">
+                <button class="modal-btn btn-cancel" onclick="closeModal('delete-confirm-modal')">Cancel</button>
+                <button class="modal-btn btn-delete" onclick="confirmDelete()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- IMAGE VIEWER MODAL -->
+    <div id="image-viewer-modal" class="modal-overlay" onclick="closeModal('image-viewer-modal')">
+        <div class="image-viewer-box" onclick="event.stopPropagation()">
+            <div class="viewer-content">
+                <img id="full-size-image" class="viewer-image" src="" alt="Full size">
+                <button class="close-viewer-btn" onclick="closeModal('image-viewer-modal')">✕</button>
+                <button class="trash-btn" onclick="triggerDeleteFlow()">🗑️</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // --- STORAGE KEY ---
+        const STORAGE_KEY = "ravens_gallery_data";
+        let galleryData = {}; 
+        let isLoggedIn = false; 
+
+        // --- LOAD DATA ---
+        function loadGalleryData() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                galleryData = JSON.parse(stored);
+                for (const [slotId, base64] of Object.entries(galleryData)) {
+                    updateSlotUI(slotId, base64);
+                }
+            }
+        }
+
+        // --- INIT GALLERY (24 SLOTS) ---
+        const TOTAL_SLOTS = 24;
+        
+        function initGallery() {
+            const grid = document.getElementById('gallery-grid');
+            const inputsContainer = document.getElementById('inputs-container');
+            
+            for (let i = 1; i <= TOTAL_SLOTS; i++) {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.id = `file-${i}`;
+                input.hidden = true;
+                input.accept = 'image/*';
+                input.onchange = (e) => handleFileSelect(e, i);
+                inputsContainer.appendChild(input);
+
+                const slot = document.createElement('div');
+                slot.className = 'upload-slot';
+                slot.id = `slot-${i}`;
+                // Click handler is now guarded
+                slot.onclick = () => checkLoginAndAction(i); 
+                
+                slot.innerHTML = `
+                    <div id="text-${i}" class="slot-text"><span>+</span>Tap to Add</div>
+                    <img id="preview-${i}" class="preview-image" onclick="openViewer(event, this.src, ${i})">
+                `;
+                
+                grid.appendChild(slot);
+            }
+            loadGalleryData();
+        }
+        
+        initGallery();
+
+        // --- MAIN LOGIC FOR SLOTS ---
+        function checkLoginAndAction(slotNum) {
+            // View image always allowed
+            const img = document.getElementById(`preview-${slotNum}`);
+            if (img.style.display === 'block') return; 
+
+            // If empty, REQUIRE login
+            if (!isLoggedIn) {
+                const slot = document.getElementById(`slot-${slotNum}`);
+                slot.classList.remove('shake');
+                void slot.offsetWidth; 
+                slot.classList.add('shake');
+                return;
+            }
+
+            // Logged in? Allow upload
+            const fileInput = document.getElementById(`file-${slotNum}`);
+            if (fileInput) fileInput.click();
+        }
+
+        // --- CLOCK LOGIC (PST) ---
+        function updateClock() {
+            const now = new Date();
+            const options = { timeZone: 'America/Los_Angeles', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false };
+            const formatter = new Intl.DateTimeFormat('en-US', options);
+            const parts = formatter.formatToParts(now);
+            
+            let h, m, s;
+            parts.forEach(p => {
+                if (p.type === 'hour') h = parseInt(p.value);
+                if (p.type === 'minute') m = parseInt(p.value);
+                if (p.type === 'second') s = parseInt(p.value);
+            });
+
+            const sDeg = (s / 60) * 360;
+            const mDeg = ((m + s/60) / 60) * 360;
+            const hDeg = ((h % 12 + m/60) / 12) * 360;
+
+            document.getElementById('sec-hand').style.transform = `rotate(${sDeg}deg)`;
+            document.getElementById('min-hand').style.transform = `rotate(${mDeg}deg)`;
+            document.getElementById('hour-hand').style.transform = `rotate(${hDeg}deg)`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // --- JAMAICA INFO LOGIC ---
+        function updateJamaicaInfo() {
+            // 1. Time
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { 
+                timeZone: 'America/Jamaica', 
+                hour12: true, 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit' 
+            });
+            document.getElementById('jam-time').innerText = timeString;
+        }
+        setInterval(updateJamaicaInfo, 1000);
+        
+        // 2. Weather Fetch
+        async function fetchWeather() {
+            try {
+                // Kingston, Jamaica Coordinates
+                const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=17.997&longitude=-76.7936&current_weather=true&temperature_unit=fahrenheit');
+                const data = await res.json();
+                if (data.current_weather) {
+                    const temp = Math.round(data.current_weather.temperature);
+                    document.getElementById('jam-temp').innerText = `${temp}°F`;
+                }
+            } catch (e) {
+                console.error("Weather fetch failed", e);
+                document.getElementById('jam-temp').innerText = "Warm";
+            }
+        }
+        fetchWeather();
+        setInterval(fetchWeather, 600000); // Update every 10 mins
+
+        // --- PRISM RESIZE LOGIC ---
+        function updatePrismDepth() {
+            const container = document.querySelector('.main-container');
+            const width = container.offsetWidth;
+            // Depth for triangular prism (3 sides, 120deg)
+            // r = w / (2 * tan(180/3)) = w / (2 * 1.732) = w / 3.464
+            const depth = Math.round(width / 3.464);
+            document.documentElement.style.setProperty('--prism-depth', `${depth}px`);
+        }
+        window.addEventListener('resize', updatePrismDepth);
+        // Initial call after small delay to ensure rendering
+        setTimeout(updatePrismDepth, 100);
+
+        // --- SWIPE TO FLIP LOGIC (UPDATED FOR 3 SIDES) ---
+        const flipper = document.getElementById('gallery-flipper');
+        const flipContainer = document.querySelector('.main-container');
+        let touchStartX = 0;
+        let touchEndX = 0;
+        let currentRotationIndex = 0; // 0=Gallery, 1=Clock, 2=Jamaica
+        
+        const SWIPE_THRESHOLD = 70; 
+
+        flipContainer.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].clientX;
+        }, {passive: false}); 
+
+        flipContainer.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].clientX;
+            handleSwipe();
+        }, {passive: false});
+
+        // Mouse Events
+        let isDragging = false;
+        flipContainer.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            touchStartX = e.clientX;
+        });
+        window.addEventListener('mouseup', (e) => {
+            if (isDragging) {
+                isDragging = false;
+                touchEndX = e.clientX;
+                handleSwipe();
+            }
+        });
+
+        function handleSwipe() {
+            const diff = touchEndX - touchStartX;
+            
+            if (Math.abs(diff) > SWIPE_THRESHOLD) {
+                if (diff < 0) {
+                    // Swipe LEFT -> Next Face
+                    currentRotationIndex++;
+                } else {
+                    // Swipe RIGHT -> Prev Face
+                    currentRotationIndex--;
+                }
+                updateRotation();
+            }
+        }
+
+        // Manual Toggle Button (Cycles forward)
+        function toggleFlip() {
+            currentRotationIndex++;
+            updateRotation();
+        }
+
+        function updateRotation() {
+            const deg = currentRotationIndex * -120;
+            flipper.style.transform = `rotateY(${deg}deg)`;
+        }
+
+        // --- GLOBAL STATE ---
+        let currentSlotNumber = null;
+        let authMode = 'upload'; 
+
+        // --- RADIO STATION LOGIC ---
+        
+        // Playlist simulation (Artist - Song)
+        const playlistSim = [
+            "Bob Marley - One Love",
+            "Peter Tosh - Legalize It",
+            "Chronixx - Smile Jamaica",
+            "Koffee - Toast",
+            "Buju Banton - Hills and Valleys",
+            "Beres Hammond - Rockaway",
+            "Sizzla - Dry Cry",
+            "Sean Paul - Get Busy",
+            "Toots & The Maytals - 54-46",
+            "Damian Marley - Welcome to Jamrock",
+            "Gregory Isaacs - Night Nurse",
+            "Shaggy - Boombastic"
+        ];
+
+        // Updated Data Structure - ONLY WORKING STATIONS (Remapped to 1-4)
+        const stations = {
+            1: { name: "Roots Rock Reggae", loc: "Jamaica", url: "https://listen.181fm.com/181-reggae_128k.mp3" }, // Old Ch 1
+            2: { name: "Dubplate Selecta", loc: "Jamaica", url: "https://stream.lagrosseradio.info/lagrosseradio-reggae-192.mp3" }, // Old Ch 3
+            3: { name: "DC Caribbean Flavor", loc: "East Coast", url: "https://icecast.omroep.nl/funx-reggae-bb-mp3" }, // Old Ch 9
+            4: { name: "Boston Island Waves", loc: "East Coast", url: "https://pureplay.cdnstream1.com/6025_128.mp3" } // Old Ch 10
+        };
+
+        let isRadioOn = false;
+        let noteInterval = null;
+        const audioPlayer = document.getElementById('boombox-audio');
+        const lcdText = document.getElementById('lcd-text');
+        const pwrBtn = document.getElementById('pwr-btn');
+
+        function toggleRadioPower() {
+            isRadioOn = !isRadioOn;
+            
+            if (isRadioOn) {
+                // TURN ON
+                pwrBtn.innerText = "PWR: ON";
+                pwrBtn.style.color = "#00ff00"; // Green text
+                pwrBtn.style.boxShadow = "0 0 10px #00ff00";
+                
+                startMusicNotes();
+                playChannel(1); // Auto-play Channel 1 immediately
+            } else {
+                // TURN OFF
+                pwrBtn.innerText = "PWR: OFF";
+                pwrBtn.style.color = "#4a3c1b"; // Reset color
+                pwrBtn.style.boxShadow = "none";
+                updateLCD("");
+                stopRadio();
+                stopMusicNotes();
+            }
+        }
+
+        function playChannel(channelId) {
+            if (!isRadioOn) {
+                alert("Turn the Power ON first!");
+                return;
+            }
+
+            const station = stations[channelId];
+            if (!station) return;
+
+            // 1. Update Display with Name AND Location
+            // Format: STATION: [Name] /// LOC: [Location]
+            updateLCD(`TUNING... CH${channelId}`);
+            lcdText.classList.remove('scrolling');
+
+            setTimeout(() => {
+                const scrollMsg = `STATION: ${station.name} /// LOC: ${station.loc} /// VIBEZ: 100%`;
+                updateLCD(scrollMsg);
+                lcdText.classList.add('scrolling');
+            }, 1000);
+
+            // 2. Play Audio
+            audioPlayer.src = station.url;
+            audioPlayer.play().then(() => {
+                // 3. Simulate "Now Playing"
+                setTimeout(() => {
+                    const randomSong = playlistSim[Math.floor(Math.random() * playlistSim.length)];
+                    const playingMsg = `NOW PLAYING: ${randomSong} /// STATION: ${station.name} (${station.loc})`;
+                    updateLCD(playingMsg);
+                }, 3000);
+            }).catch(e => {
+                console.log(e);
+                // Fallback message if stream fails (common with public streams/CORS)
+                updateLCD(`CONNECTING TO ${station.name} (${station.loc})...`);
+                lcdText.classList.add('scrolling');
+            });
+
+            // Trigger intense notes on change
+            spawnNoteBurst();
+        }
+
+        function stopRadio() {
+            audioPlayer.pause();
+            audioPlayer.currentTime = 0;
+            if (isRadioOn) {
+                updateLCD("STOPPED - READY");
+                lcdText.classList.remove('scrolling');
+            }
+        }
+
+        function updateLCD(text) {
+            lcdText.innerText = text;
+        }
+
+        // --- MUSIC NOTE ANIMATION LOGIC ---
+        function startMusicNotes() {
+            if (noteInterval) clearInterval(noteInterval);
+            noteInterval = setInterval(createSingleNote, 600); // Create a note every 600ms
+        }
+
+        function stopMusicNotes() {
+            if (noteInterval) clearInterval(noteInterval);
+            // Optional: Clear existing notes immediately
+            document.querySelectorAll('.music-note').forEach(el => el.remove());
+        }
+
+        function spawnNoteBurst() {
+            // Create 5 notes at once for effect
+            for(let i=0; i<5; i++) {
+                setTimeout(createSingleNote, i * 200);
+            }
+        }
+
+        function createSingleNote() {
+            // Only create if modal is active
+            const modal = document.getElementById('vibez-modal');
+            if (!modal.classList.contains('active')) return;
+
+            const boombox = document.querySelector('.boombox-body');
+            const note = document.createElement('div');
+            note.classList.add('music-note');
+            
+            // Random Symbol
+            const symbols = ['♪', '♫', '♩', '♬'];
+            note.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+            
+            // Random Rainbow Color
+            const colors = ['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#9400d3'];
+            note.style.color = colors[Math.floor(Math.random() * colors.length)];
+            
+            // Random Horizontal Start Position (10% to 90% of boombox width)
+            const randomLeft = Math.floor(Math.random() * 80) + 10;
+            note.style.left = randomLeft + '%';
+            note.style.bottom = '20px'; // Start from bottom of boombox
+            
+            boombox.appendChild(note);
+
+            // Clean up after animation
+            setTimeout(() => {
+                note.remove();
+            }, 2000);
+        }
+
+        document.querySelectorAll('.modal-input').forEach(input => {
+            input.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    if (this.id === 'modal-pass') submitPassword();
+                    if (this.id === 'login-pass') submitLogin();
+                }
+            });
+        });
+
+        function updateSlotUI(slotIdNumber, base64Image) {
+            const img = document.getElementById(`preview-${slotIdNumber}`);
+            const text = document.getElementById(`text-${slotIdNumber}`);
+            if (img && text && base64Image) {
+                img.src = base64Image;
+                img.style.display = 'block';
+                text.style.display = 'none';
+            }
+        }
+
+        function clearSlotUI(slotIdNumber) {
+            const img = document.getElementById(`preview-${slotIdNumber}`);
+            const text = document.getElementById(`text-${slotIdNumber}`);
+            if (img && text) {
+                img.src = "";
+                img.style.display = 'none';
+                text.style.display = 'block';
+            }
+        }
+
+        function openVibezModal() {
+            document.getElementById('vibez-modal').classList.add('active');
+        }
+
+        // --- NEWS MODAL LOGIC (REAL API FETCH) ---
+        function openNewsModal() {
+            document.getElementById('news-modal').classList.add('active');
+            
+            // 1. UPDATE DATE TO GEORGIA TIME
+            const now = new Date();
+            const options = { 
+                timeZone: 'America/New_York',
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: true
+            };
+            
+            const gaTime = now.toLocaleString('en-US', options);
+            document.getElementById('news-date').innerHTML = `${gaTime} <br><span style="color:#ffd700; font-size:1.1em;">(GA TIME)</span>`;
+
+            fetchAugustaNews();
+        }
+
+        async function fetchAugustaNews() {
+            const content = document.getElementById('news-content');
+            content.innerHTML = 'Fetching live updates from Augusta...';
+
+            const apiKey = '4da49b707160a10a8316354736e7555a'; 
+            // FIX: Changed 'token' to 'apikey' based on standard GNews docs
+            const url = `https://gnews.io/api/v4/search?q=Augusta+Georgia&lang=en&max=5&token=${apiKey}`;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(`HTTP ${response.status}: ${errData.errors?.[0] || 'Unknown error'}`);
+                }
+                const data = await response.json();
+
+                if (data.articles && data.articles.length > 0) {
+                    let html = '<div style="color: #00ff00; font-weight: bold; margin-bottom: 10px;">🟢 LIVE NEWS FEED</div>';
+                    data.articles.forEach(item => {
+                        html += `
+                            <div class="news-item">
+                                <div class="news-headline"><a href="${item.url}" target="_blank" style="color:#ffd700;text-decoration:none;">${item.title}</a></div>
+                                <div class="news-snippet">${item.description}</div>
+                            </div>
+                        `;
+                    });
+                    content.innerHTML = html;
+                } else {
+                    // Fallback if no articles found
+                    renderSimulatedNews(content, "No live articles found.");
+                }
+            } catch (error) {
+                console.error("News fetch error:", error);
+                // Fallback on error with specific message
+                renderSimulatedNews(content, error.message);
+            }
+        }
+
+        function renderSimulatedNews(container, errorMsg = "") {
+             const headlines = [
+                    { title: "Lights of the South Draws Huge Crowds", snippet: "Traffic delays expected on Evans to Locks Rd as families flock to the annual holiday light display." },
+                    { title: "Augusta Christmas Parade Route Confirmed", snippet: "The downtown parade set for next Saturday will feature floats from over 50 local organizations." },
+                    { title: "Cyber Center Announces Winter Tech Expo", snippet: "The Georgia Cyber Center to host a public showcase of local tech innovations this Friday." },
+                    { title: "Riverwalk Winter Festival Kicks Off", snippet: "Enjoy hot cocoa, local artisans, and live music along the Savannah River this weekend." },
+                    { title: "Weather: Chilly Nights, Sunny Days", snippet: "Temperatures dropping to the low 40s tonight with a high of 62°F tomorrow." },
+                    { title: "Golden Harvest Food Bank Drive", snippet: "Local donations needed to support holiday meal boxes for families in the CSRA." },
+                    { title: "High School Football State Playoffs", snippet: "Local teams advance to the quarterfinals; games scheduled for Friday night under the lights." }
+                ];
+                
+                let html = `<div style="color: #ff4444; font-weight: bold; margin-bottom: 5px;">🔴 OFFLINE MODE</div>`;
+                if(errorMsg) {
+                    html += `<div style="color: #ff9966; font-size: 0.8rem; margin-bottom: 15px;">Reason: ${errorMsg}</div>`;
+                }
+                
+                headlines.forEach(item => {
+                    html += `
+                        <div class="news-item">
+                            <div class="news-headline">${item.title}</div>
+                            <div class="news-snippet">${item.snippet}</div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+        }
+
+        function openPasswordModal(slotNum, mode) {
+            // ONLY used for DELETE logic now
+            currentSlotNumber = slotNum;
+            authMode = mode;
+            const modal = document.getElementById('password-modal');
+            const input = document.getElementById('modal-pass');
+            const title = document.getElementById('password-modal-title');
+            const submitBtn = document.getElementById('password-submit-btn');
+            
+            if (mode === 'delete') {
+                title.innerText = "Enter them digits if you think you so sho’";
+                submitBtn.innerText = "delete this shit";
+                submitBtn.classList.remove('btn-unlock');
+                submitBtn.classList.add('btn-delete');
+            }
+            
+            input.value = ''; 
+            modal.classList.add('active');
+            setTimeout(() => input.focus(), 100);
+        }
+
+        function openLoginModal() {
+            const modal = document.getElementById('login-modal');
+            const input = document.getElementById('login-pass');
+            input.value = ''; 
+            modal.classList.add('active');
+            setTimeout(() => input.focus(), 100);
+        }
+
+        function submitLogin() {
+            const input = document.getElementById('login-pass');
+            const password = input.value;
+            
+            if (password === "2018") {
+                isLoggedIn = true; // GRANT ACCESS
+                
+                // Explode & Disappear
+                explodeGlitter(); 
+                
+                const loginBtn = document.getElementById('main-login-btn');
+                loginBtn.classList.add('hidden'); // Hide button
+                
+                // REVEAL ALL HIDDEN BUTTONS
+                document.querySelectorAll('.auth-locked').forEach(el => {
+                    el.classList.remove('auth-locked');
+                    // Optional: Add a little pop animation class here if desired
+                });
+
+                closeModal('login-modal');
+                
+                // NEW: Open Virgo Modal after a short delay for effect
+                setTimeout(openVirgoModal, 500); 
+            } else {
+                alert("Incorrect password!");
+                input.value = '';
+                input.focus();
+            }
+        }
+
+        function openViewer(event, src, slotNum) {
+            event.stopPropagation(); 
+            const modal = document.getElementById('image-viewer-modal');
+            const img = document.getElementById('full-size-image');
+            img.src = src;
+            currentSlotNumber = slotNum; 
+            modal.classList.add('active');
+        }
+
+        function triggerDeleteFlow() {
+            if (!isLoggedIn) {
+                alert("Only the Queen can delete photos!");
+                return;
+            }
+            document.getElementById('delete-confirm-modal').classList.add('active');
+        }
+
+        function confirmDelete() {
+            closeModal('delete-confirm-modal');
+            if (isLoggedIn) {
+                performDelete();
+            } else {
+                openPasswordModal(currentSlotNumber, 'delete');
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function submitPassword() {
+            const input = document.getElementById('modal-pass');
+            const password = input.value;
+            
+            if (password === "2018") {
+                closeModal('password-modal');
+                if (authMode === 'delete') {
+                    performDelete();
+                }
+            } else {
+                alert("Incorrect password!");
+                input.value = '';
+                input.focus();
+            }
+        }
+
+        async function saveImageToLocal(slotId, file) {
+            const compressedBase64 = await compressImage(file);
+            galleryData[slotId] = compressedBase64;
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(galleryData));
+                updateSlotUI(slotId, compressedBase64);
+            } catch (e) {
+                alert("Storage full! Please delete some photos.");
+            }
+        }
+
+        function performDelete() {
+            closeModal('image-viewer-modal');
+            explodeGlitter();
+            if (currentSlotNumber) {
+                delete galleryData[currentSlotNumber];
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(galleryData));
+                clearSlotUI(currentSlotNumber);
+            }
+        }
+
+        function handleFileSelect(event, slotNum) {
+            const input = event.target;
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                saveImageToLocal(slotNum, file);
+            }
+        }
+
+        function compressImage(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        const MAX_SIZE = 600; 
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > height) {
+                            if (width > MAX_SIZE) {
+                                height *= MAX_SIZE / width;
+                                width = MAX_SIZE;
+                            }
+                        } else {
+                            if (height > MAX_SIZE) {
+                                width *= MAX_SIZE / height;
+                                height = MAX_SIZE;
+                            }
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL('image/jpeg', 0.7)); 
+                    };
+                };
+            });
+        }
+
+        function explodeGlitter() {
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+            for (let i = 0; i < 100; i++) {
+                particles.push(new ExplosionParticle(centerX, centerY));
+            }
+        }
+
+        class ExplosionParticle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 8 + 3;
+                this.color = ['#ff00cc', '#ffd700', '#ffffff', '#ff69b4'][Math.floor(Math.random() * 4)];
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 10 + 2;
+                this.speedX = Math.cos(angle) * speed;
+                this.speedY = Math.sin(angle) * speed;
+                this.life = 1.0;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.life -= 0.02;
+                this.size *= 0.95;
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = this.life;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.id = 'glitter-trail';
+        document.body.appendChild(canvas);
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 5 + 2;
+                this.speedX = Math.random() * 2 - 1;
+                this.speedY = Math.random() * 2 - 1;
+                this.color = ['#FFD700', '#FF69B4', '#FFFFFF', '#FF00CC'][Math.floor(Math.random() * 4)];
+                this.life = 1.0;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.life -= 0.02;
+                this.size *= 0.95;
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = this.life;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function handleInput(x, y) {
+            for (let i = 0; i < 3; i++) {
+                particles.push(new Particle(x, y));
+            }
+        }
+
+        window.addEventListener('mousemove', (e) => handleInput(e.x, e.y));
+        window.addEventListener('touchmove', (e) => {
+            const touch = e.touches[0];
+            handleInput(touch.clientX, touch.clientY);
+        });
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+                if (particles[i].life <= 0 || particles[i].size <= 0.1) {
+                    particles.splice(i, 1);
+                    i--;
+                }
+            }
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        function spawnButterfly() {
+            const container = document.getElementById('butterfly-sky');
+            const transit = document.createElement('div');
+            transit.className = 'bf-transit';
+            const vertical = document.createElement('div');
+            vertical.className = 'bf-vertical';
+            const butterfly = document.createElement('div');
+            butterfly.className = 'bf-visual';
+            
+            // 50% chance to be gold
+            if (Math.random() > 0.5) {
+                butterfly.classList.add('gold');
+            }
+            
+            butterfly.innerText = '🦋';
+            const startY = Math.floor(Math.random() * 80) + 10; 
+            transit.style.top = startY + '%';
+            const transitDur = (Math.random() * 7 + 8).toFixed(1);
+            transit.style.animationDuration = `${transitDur}s`;
+            const bobDur = (Math.random() * 3 + 2).toFixed(1);
+            vertical.style.animationDuration = `${bobDur}s`;
+            vertical.style.animationDelay = `-${Math.random() * 5}s`;
+            const flapDur = (Math.random() * 0.25 + 0.15).toFixed(2);
+            butterfly.style.animationDuration = `${flapDur}s`;
+            butterfly.style.animationDelay = `-${Math.random()}s`;
+            vertical.appendChild(butterfly);
+            transit.appendChild(vertical);
+            container.appendChild(transit);
+            setTimeout(() => {
+                transit.remove();
+            }, transitDur * 1000 + 100);
+        }
+        setInterval(spawnButterfly, 5000);
+        spawnButterfly(); 
+
+        // --- TRIVIA LOGIC (CUSTOM CURATED DECK - R&B LEGENDS) ---
+        let triviaQuestions = [];
+        let currentQuestionIndex = 0;
+        let userScore = 0;
+
+        // CUSTOM CURATED R&B QUESTIONS
+        const customQuestions = [
+            {
+                "question": "Which artist is widely known as the 'Godfather of Soul'?",
+                "correct_answer": "James Brown",
+                "incorrect_answers": ["Otis Redding", "Marvin Gaye", "Sam Cooke"]
+            },
+            {
+                "question": "Which iconic album by Prince features the hit song 'When Doves Cry'?",
+                "correct_answer": "Purple Rain",
+                "incorrect_answers": ["1999", "Sign o' the Times", "Diamonds and Pearls"]
+            },
+            {
+                "question": "Before her solo career, Beyoncé was the lead singer of which group?",
+                "correct_answer": "Destiny's Child",
+                "incorrect_answers": ["TLC", "En Vogue", "SWV"]
+            },
+            {
+                "question": "Which artist released the 1971 landmark album 'What's Going On'?",
+                "correct_answer": "Marvin Gaye",
+                "incorrect_answers": ["Al Green", "Curtis Mayfield", "Donny Hathaway"]
+            },
+            {
+                "question": "The soundtrack for 'The Bodyguard' features which Whitney Houston smash hit?",
+                "correct_answer": "I Will Always Love You",
+                "incorrect_answers": ["Greatest Love of All", "I Wanna Dance with Somebody", "How Will I Know"]
+            },
+            {
+                "question": "Who recorded the hit single 'Superstition' in 1972?",
+                "correct_answer": "Stevie Wonder",
+                "incorrect_answers": ["Ray Charles", "Lionel Richie", "Smokey Robinson"]
+            },
+            {
+                "question": "Which 'King of Pop' began his career in a group with his brothers?",
+                "correct_answer": "Michael Jackson",
+                "incorrect_answers": ["Prince", "Bobby Brown", "Rick James"]
+            },
+            {
+                "question": "'No Scrubs' was a hit song by which girl group?",
+                "correct_answer": "TLC",
+                "incorrect_answers": ["Destiny's Child", "Salt-N-Pepa", "Xscape"]
+            },
+            {
+                "question": "Which singer is known for the hit song 'Respect'?",
+                "correct_answer": "Aretha Franklin",
+                "incorrect_answers": ["Diana Ross", "Patti LaBelle", "Tina Turner"]
+            },
+            {
+                "question": "Which R&B star released the diamond-certified album 'Confessions' in 2004?",
+                "correct_answer": "Usher",
+                "incorrect_answers": ["Ne-Yo", "Chris Brown", "R. Kelly"]
+            }
+        ];
+
+        function openTriviaModal() {
+            document.getElementById('trivia-modal').classList.add('active');
+            document.getElementById('trivia-game-container').style.display = 'block';
+            
+            // Reset state
+            currentQuestionIndex = 0;
+            userScore = 0;
+            document.getElementById('trivia-score').innerText = `Score: 0 / 10`;
+
+            // Use Custom Questions Instead of API
+            triviaQuestions = customQuestions;
+            renderQuestion();
+        }
+
+        function decodeHtml(html) {
+            const txt = document.createElement("textarea");
+            txt.innerHTML = html;
+            return txt.value;
+        }
+
+        function renderQuestion() {
+            const q = triviaQuestions[currentQuestionIndex];
+            const qText = document.getElementById('trivia-question-text');
+            const optionsContainer = document.getElementById('trivia-options');
+            const nextBtn = document.getElementById('trivia-next-btn');
+
+            qText.innerText = decodeHtml(q.question);
+            optionsContainer.innerHTML = '';
+            nextBtn.style.display = 'none';
+
+            // Mix correct and incorrect answers
+            let answers = [...q.incorrect_answers, q.correct_answer];
+            // Shuffle
+            answers.sort(() => Math.random() - 0.5);
+
+            answers.forEach(ans => {
+                const btn = document.createElement('button');
+                btn.className = 'trivia-option-btn';
+                btn.innerText = decodeHtml(ans);
+                btn.onclick = () => checkAnswer(btn, ans, q.correct_answer);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedBtn, selectedText, correctText) {
+            // Disable all buttons
+            const allBtns = document.querySelectorAll('.trivia-option-btn');
+            allBtns.forEach(btn => btn.disabled = true);
+
+            if (selectedText === correctText) {
+                selectedBtn.classList.add('correct');
+                userScore++;
+                explodeGlitter(); // Reward!
+            } else {
+                selectedBtn.classList.add('wrong');
+                // Highlight the correct one
+                allBtns.forEach(btn => {
+                    if (btn.innerText === decodeHtml(correctText)) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+
+            document.getElementById('trivia-score').innerText = `Score: ${userScore} / 10`;
+            document.getElementById('trivia-next-btn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < triviaQuestions.length) {
+                renderQuestion();
+            } else {
+                // End of game
+                document.getElementById('trivia-question-text').innerText = `Game Over! You scored ${userScore} / 10`;
+                document.getElementById('trivia-options').innerHTML = '';
+                document.getElementById('trivia-next-btn').style.display = 'none';
+                
+                if (userScore > 7) {
+                    explodeGlitter();
+                    explodeGlitter();
+                }
+            }
+        }
+
+        // --- DOMINO GAME LOGIC ---
+        let dominoTiles = [];
+        let playerHand = [];
+        let aiHand = [];
+        let board = [];
+        let boneyard = [];
+        let currentTurn = 'player'; // 'player' or 'ai'
+        let aiDifficulty = 'medium'; 
+        let leftEnd = null;
+        let rightEnd = null;
+
+        function openDominoModal() {
+            document.getElementById('domino-modal').classList.add('active');
+            setDominoDifficulty('medium'); // Default
+        }
+
+        function setDominoDifficulty(level) {
+            aiDifficulty = level;
+            document.querySelectorAll('.domino-diff-btn').forEach(btn => btn.classList.remove('selected'));
+            if(level === 'easy') document.getElementById('diff-easy').classList.add('selected');
+            if(level === 'medium') document.getElementById('diff-med').classList.add('selected');
+            if(level === 'hard') document.getElementById('diff-hard').classList.add('selected');
+        }
+
+        function generateDominoes() {
+            let deck = [];
+            for(let i=0; i<=6; i++) {
+                for(let j=i; j<=6; j++) {
+                    deck.push({ a: i, b: j });
+                }
+            }
+            // Shuffle
+            return deck.sort(() => Math.random() - 0.5);
+        }
+
+        function startDominoGame() {
+            const deck = generateDominoes();
+            playerHand = deck.slice(0, 7);
+            aiHand = deck.slice(7, 14);
+            boneyard = []; // Simplified: no boneyard drawing for this quick version, or we can use rest
+            // Actually, let's use the rest for boneyard
+            // If strict rules, 14 left.
+            // Simplified version: Just deal 7 each. 
+            
+            board = [];
+            leftEnd = null;
+            rightEnd = null;
+            
+            // Determine who starts - highest double
+            // Simplified: Player starts
+            currentTurn = 'player';
+            updateDominoUI();
+            updateStatus("Your Turn! Select a tile to play.");
+        }
+
+        function updateDominoUI() {
+            // Render Player Hand
+            const pContainer = document.getElementById('player-hand');
+            pContainer.innerHTML = '';
+            playerHand.forEach((tile, index) => {
+                const el = createTileElement(tile);
+                el.onclick = () => playTile(index);
+                // Check if playable
+                if (!isPlayable(tile)) {
+                    el.style.opacity = '0.5';
+                    el.style.cursor = 'not-allowed';
+                }
+                pContainer.appendChild(el);
+            });
+
+            // Render AI Hand (Backs)
+            const aiContainer = document.getElementById('ai-hand');
+            aiContainer.innerHTML = '';
+            aiHand.forEach(() => {
+                const el = document.createElement('div');
+                el.className = 'domino-tile';
+                el.style.background = '#ff1493'; // Back color
+                el.style.border = '2px solid #ffd700';
+                aiContainer.appendChild(el);
+            });
+
+            // Render Board
+            const bContainer = document.getElementById('domino-board');
+            bContainer.innerHTML = '';
+            board.forEach(tileObj => {
+                // tileObj = { tile: {a,b}, placedVal: x } logic is complex for rendering 
+                // Simplified rendering: Just list them
+                const el = createTileElement(tileObj.tile);
+                if (tileObj.flipped) {
+                     // CSS trick for flipping visual not implemented fully, just swapping text logic
+                     // For visual, just re-create tile with swapped values
+                     const flippedTile = { a: tileObj.tile.b, b: tileObj.tile.a };
+                     const flippedEl = createTileElement(flippedTile);
+                     if(tileObj.tile.a !== tileObj.tile.b) {
+                        flippedEl.classList.add('horizontal');
+                     }
+                     bContainer.appendChild(flippedEl);
+                } else {
+                     if(tileObj.tile.a !== tileObj.tile.b) {
+                        el.classList.add('horizontal');
+                     }
+                     bContainer.appendChild(el);
+                }
+            });
+        }
+
+        function createTileElement(tile) {
+            const el = document.createElement('div');
+            el.className = 'domino-tile';
+            
+            const top = document.createElement('div');
+            top.className = 'domino-half';
+            renderDots(top, tile.a);
+            
+            const bot = document.createElement('div');
+            bot.className = 'domino-half';
+            renderDots(bot, tile.b);
+
+            el.appendChild(top);
+            el.appendChild(bot);
+            return el;
+        }
+
+        function renderDots(container, count) {
+            // Simplified dot rendering using text or simple svg dots
+            // For now, let's use standard unicode domino faces or just dots
+            // Let's use simple circles
+            // Layout is hard with pure CSS for 1-6 without specific classes
+            // Fallback: Number
+            // container.innerText = count; 
+            // Better: SVG Dots
+            // Actually, let's just use text numbers for simplicity in this specific code block
+            // to ensure stability, or simple dots logic:
+            
+            let dotArr = [];
+            if(count === 0) {} // blank
+            if(count === 1) dotArr = ['center'];
+            if(count === 2) dotArr = ['tl', 'br'];
+            if(count === 3) dotArr = ['tl', 'center', 'br'];
+            if(count === 4) dotArr = ['tl', 'tr', 'bl', 'br'];
+            if(count === 5) dotArr = ['tl', 'tr', 'center', 'bl', 'br'];
+            if(count === 6) dotArr = ['tl', 'tr', 'mid-l', 'mid-r', 'bl', 'br'];
+
+            // CSS Grid for dots would be best, but let's just use a number for high reliability in this environment
+            container.style.color = '#000000'; // BLACK as requested
+            container.style.fontSize = '20px';
+            container.style.fontWeight = 'bold';
+            container.innerText = count;
+        }
+
+        function isPlayable(tile) {
+            if (board.length === 0) return true;
+            return (tile.a === leftEnd || tile.a === rightEnd || tile.b === leftEnd || tile.b === rightEnd);
+        }
+
+        function playTile(index) {
+            if (currentTurn !== 'player') return;
+            const tile = playerHand[index];
+
+            if (!isPlayable(tile)) {
+                // If can't play, alert? Or maybe they have no moves?
+                // Check if ANY move is possible
+                const canMove = playerHand.some(t => isPlayable(t));
+                if (!canMove) {
+                    updateStatus("No moves! You pass.");
+                    currentTurn = 'ai';
+                    setTimeout(aiMove, 1500);
+                    return;
+                }
+                updateStatus("Can't play that tile!");
+                return;
+            }
+
+            // Logic to place tile
+            placeTileOnBoard(tile, 'player');
+            playerHand.splice(index, 1);
+            
+            updateDominoUI();
+
+            if (playerHand.length === 0) {
+                updateStatus("YOU WIN! 👑");
+                explodeGlitter();
+                return;
+            }
+
+            currentTurn = 'ai';
+            updateStatus("AI is thinking...");
+            setTimeout(aiMove, 1500);
+        }
+
+        function placeTileOnBoard(tile, who) {
+            if (board.length === 0) {
+                board.push({ tile: tile, flipped: false });
+                leftEnd = tile.a;
+                rightEnd = tile.b;
+            } else {
+                // Try to match left
+                if (tile.a === leftEnd) {
+                    // Match a to leftEnd. New leftEnd is b.
+                    // Must flip visual? No, if we put [b|a] it matches [a|...]
+                    // We render sequence left to right.
+                    // So we add to START of array.
+                    // Tile is [a,b]. Board left is a.
+                    // We need [b,a] to connect.
+                    board.unshift({ tile: tile, flipped: true });
+                    leftEnd = tile.b;
+                } else if (tile.b === leftEnd) {
+                    // Tile [a,b]. Match b to leftEnd.
+                    // [a,b] connects to [b|...]
+                    board.unshift({ tile: tile, flipped: false });
+                    leftEnd = tile.a;
+                } else if (tile.a === rightEnd) {
+                    // Match a to rightEnd.
+                    // [...|a] connects to [a,b]
+                    board.push({ tile: tile, flipped: false });
+                    rightEnd = tile.b;
+                } else if (tile.b === rightEnd) {
+                    // Match b to rightEnd.
+                    // [...|b] connects to [b,a]
+                    board.push({ tile: tile, flipped: true });
+                    rightEnd = tile.a;
+                }
+            }
+        }
+
+        function aiMove() {
+            // Filter playable
+            let playable = aiHand.filter(t => isPlayable(t));
+
+            if (playable.length === 0) {
+                updateStatus("AI has no moves and passes!");
+                currentTurn = 'player';
+                // Check if player has moves
+                 const pCanMove = playerHand.some(t => isPlayable(t));
+                 if(!pCanMove) {
+                     // Blocked game
+                     endGameBlocked();
+                     return;
+                 }
+                return;
+            }
+
+            let chosenTile;
+
+            // DIFFICULTY LOGIC
+            if (aiDifficulty === 'easy') {
+                // Random
+                chosenTile = playable[Math.floor(Math.random() * playable.length)];
+            } 
+            else if (aiDifficulty === 'medium') {
+                // Play heaviest (highest sum)
+                playable.sort((x, y) => (y.a + y.b) - (x.a + x.b));
+                chosenTile = playable[0];
+            }
+            else { // Hard
+                // Try to play doubles first
+                const doubles = playable.filter(t => t.a === t.b);
+                if (doubles.length > 0) {
+                    doubles.sort((x, y) => (y.a + y.b) - (x.a + x.b));
+                    chosenTile = doubles[0];
+                } else {
+                    // Play heaviest
+                    playable.sort((x, y) => (y.a + y.b) - (x.a + x.b));
+                    chosenTile = playable[0];
+                }
+            }
+
+            // Remove from AI hand
+            const idx = aiHand.indexOf(chosenTile);
+            aiHand.splice(idx, 1);
+            placeTileOnBoard(chosenTile, 'ai');
+            updateDominoUI();
+
+            if (aiHand.length === 0) {
+                updateStatus("AI WINS! Better luck next time.");
+                return;
+            }
+
+            currentTurn = 'player';
+            updateStatus("Your Turn");
+            
+            // Check if player is blocked immediately
+            const pCanMove = playerHand.some(t => isPlayable(t));
+            if(!pCanMove) {
+                 setTimeout(() => {
+                    updateStatus("You have no moves! Passing to AI.");
+                    currentTurn = 'ai';
+                    setTimeout(aiMove, 1500);
+                 }, 1000);
+            }
+        }
+
+        function endGameBlocked() {
+            // Count pips
+            let pScore = playerHand.reduce((acc, t) => acc + t.a + t.b, 0);
+            let aiScore = aiHand.reduce((acc, t) => acc + t.a + t.b, 0);
+            if (pScore < aiScore) {
+                updateStatus(`GAME BLOCKED! You win (fewer points: ${pScore} vs ${aiScore})`);
+                explodeGlitter();
+            } else {
+                updateStatus(`GAME BLOCKED! AI wins (fewer points: ${aiScore} vs ${pScore})`);
+            }
+        }
+
+        function updateStatus(msg) {
+            document.getElementById('domino-status').innerText = msg;
+        }
+
+        // --- VIRGO MODAL LOGIC ---
+        const virgoQuotes = [
+            "Your analytical mind is sharp today. Solve that problem you've been putting off.",
+            "Virgo, remember: it's okay to ask for help. You don't have to carry the world alone.",
+            "Today brings a focus on health and wellness. Listen to your body.",
+            "Your kindness is often in your acts of service. Do something small for someone you love.",
+            "Organization creates peace of mind. Declutter your space, declutter your mind.",
+            "Perfectionism is a double-edged sword. Don't let the perfect be the enemy of the good.",
+            "Your intuition is grounded in reality. Trust your gut today.",
+            "A practical approach will yield the best results in your current situation.",
+            "Virgos shine when they are helping others. Who needs you today?",
+            "Take a break from overthinking. Nature grounds you.",
+            "Your eye for detail is unmatched. Use it to create something beautiful today.",
+            "Patience is a virtue, and today it is your greatest asset.",
+            "Modesty is charming, but don't hide your light today. Step forward.",
+            "Analyze the situation, but don't forget to feel the emotions involved.",
+            "Today is a good day to plan for the future. Your foresight is strong."
+        ];
+
+        function openVirgoModal() {
+            document.getElementById('virgo-modal').classList.add('active');
+            
+            // Set Date
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric'
+            };
+            document.getElementById('virgo-date').innerText = now.toLocaleDateString('en-US', options);
+
+            // Get Daily Quote based on Day of Year
+            const start = new Date(now.getFullYear(), 0, 0);
+            const diff = now - start;
+            const oneDay = 1000 * 60 * 60 * 24;
+            const dayOfYear = Math.floor(diff / oneDay);
+            
+            const quoteIndex = dayOfYear % virgoQuotes.length;
+            document.getElementById('virgo-content').innerText = `"${virgoQuotes[quoteIndex]}"`;
+        }
+
+        function claimVirgoEnergy() {
+            closeModal('virgo-modal');
+            
+            // Create a HUGE explosion by triggering multiple bursts rapidly
+            explodeGlitter();
+            setTimeout(explodeGlitter, 100);
+            setTimeout(explodeGlitter, 250);
+            setTimeout(explodeGlitter, 400);
+            setTimeout(explodeGlitter, 600);
+        }
+
+    </script>
+
+</body>
+</html>
+
+
+
